@@ -33,19 +33,11 @@ int *intercala2(int *v1, int l1, int r1, int *v2, int l2, int r2)
 
     while (l1 < r1 && l2 < r2)
     {
-        if (v1[l1] != v2[l2])
-        {
 
-            if (v1[l1] < v2[l2])
-                vM[ci++] = v1[l1++];
-            else
-                vM[ci++] = v2[l2++];
-        }
-        else
-        {
+        if (v1[l1] < v2[l2])
             vM[ci++] = v1[l1++];
-            l2++;
-        }
+        else
+            vM[ci++] = v2[l2++];
 
         qntFinal++;
     }
@@ -107,20 +99,22 @@ int main()
     for (int i = 0; i < qntNum; i++)
         scanf("%d", &vet[i]);
 
+    mergeSort(vet, 0, qntNum - 1);
+
+    qntNum = uniq(vet, qntNum);
+
     if (qntNum % 2 != 0)
     {
         vet[qntNum] = 1000000000;
         qntNum++;
     }
 
-    mergeSort(vet, 0, qntNum - 1);
-
-    qntNum = uniq(vet, qntNum);
-
     for (int i = 0; i < qntNum; i = i + 2)
     {
         vetAux[qntAux++] = vet[i] + vet[i + 1];
     }
+
+    mergeSort(vetAux, 0, qntAux - 1);
 
     /* for (int i = 0; i < qntNum; i++)
         printf("%d ", vet[i]);
@@ -131,6 +125,7 @@ int main()
     printf("\n"); */
 
     saida = intercala2(vet, 0, qntNum, vetAux, 0, qntAux);
+    qntFinal = uniq(saida, qntFinal);
 
     for (int i = 0; i < qntFinal; i = i + 4)
         printf("%d\n", saida[i]);
