@@ -26,7 +26,7 @@ int separa(dic *v, int l, int r)
     dic c = v[r], t; // pivô
     int j = l;
     for (int k = l; /*A*/ k < r; ++k)
-        if (strcmp(v[k].jap, c.jap))
+        if (strcmp(c.jap, v[k].jap) >= 0)
         {
             t = v[j], v[j] = v[k], v[k] = t;
             ++j;
@@ -52,7 +52,7 @@ int binarySearch(dic arr[], int l, int r, char *x)
 {
     if (r >= l)
     {
-        int mid = l + r / 2;
+        int mid = (r - l) / 2 + l;
 
         // If the element is present at the middle
         // itself
@@ -66,7 +66,8 @@ int binarySearch(dic arr[], int l, int r, char *x)
 
         // Else the element can only be present
         // in right subarray
-        return binarySearch(arr, mid + 1, r, x);
+        if (strcmp(x, arr[mid].jap) > 0)
+            return binarySearch(arr, mid + 1, r, x);
     }
     return -1;
 }
@@ -88,16 +89,12 @@ int main()
         }
         quickSort(palavras, 0, qntDic - 1);
 
-        /*
-        for (int j = 0; j < qntDic; j++)
-            printf("%s %s\n", palavras[j].jap, palavras[j].ptbr);
-        */
         for (int j = 0; j < qntVer; j++)
         {
             int busca;
             while (scanf(" %s%c", entrada, &p) == 2)
             {
-                busca = binarySearch(palavras, 0, qntDic, entrada);
+                busca = binarySearch(palavras, 0, qntDic - 1, entrada);
                 if (busca != -1)
                     printf("%s", palavras[busca].ptbr);
                 else
@@ -107,6 +104,7 @@ int main()
                     break;
             }
         }
+        printf("\n");
     }
 
     return 0;
