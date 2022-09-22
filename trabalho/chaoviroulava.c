@@ -164,7 +164,7 @@ void graphDist(Grafo_t g, int origem)
         for (link a = g->vet[saida]; a != NULL; a = a->prox)
         {
             int w = a->dest;
-            if (pre[w] == -1)
+            if (pre[w] == max)
             {
                 pre[a->dest] = pre[saida] + 1;
                 enfileira(fila, w);
@@ -219,9 +219,8 @@ int main()
                 }
             }
         }
-        printf("\topa bom? %d\t", pre[1]);
+
         graphDist(grafo, 0);
-        printf("uiui\n");
 
         for (int i = 0; i < grafo->qntV; i++)
         {
