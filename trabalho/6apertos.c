@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <string.h>
 
+#define SIZE 33911
 static int pre[3001];
 
 struct Fila
@@ -24,7 +25,7 @@ struct Fila *criaFila(unsigned capacity)
     return Fila;
 }
 
-// Pergunta se estÃ¡ vazia
+// Pergunta se esta vazia
 int filaVazia(struct Fila *Fila)
 {
     return (Fila->size == 0);
@@ -48,6 +49,63 @@ int desenfileira(struct Fila *Fila)
     return item;
 }
 
+typedef struct Nome
+{
+    int numVertice;
+    char name[26];
+} Nome;
+
+Nome ht[SIZE];
+
+void iniciaHt()
+{
+    for (int i = 0; i < SIZE; i++)
+        ht[i].numVertice = -1;
+}
+
+int hashUniversal(char *string)
+{
+
+    unsigned int hash = 0;
+
+    for (int i = 0; string[i] != '\0'; i++)
+        hash += string[i] * (i + 1) * 20014447 / 1000;
+
+    return hash % SIZE;
+}
+
+void insereHt(Nome novo)
+{
+
+    int pos = hashUniversal(novo.name);
+    while (ht[pos].numVertice != -1)
+    {
+        pos = (pos + 2) % SIZE;
+    }
+
+    ht[pos] = novo;
+}
+
+int buscaHt(Nome encontra)
+{
+
+    int pos = hashUniversal(encontra.name);
+
+    while (ht[pos].numVertice != -1)
+    {
+        if (strcmp(encontra.name, ht[pos].name) == 0)
+        {
+            return ht[pos].numVertice;
+        }
+        else
+        {
+            pos = (pos + 2) % SIZE;
+        }
+    }
+
+    return -1;
+}
+
 typedef struct no *link;
 
 struct no
@@ -64,12 +122,6 @@ struct grafo_t
     int qntV;
     int qntA;
 };
-
-typedef struct coord
-{
-    int x;
-    int y;
-} coord;
 
 Grafo_t grafoinit(int v)
 {
@@ -111,42 +163,11 @@ void novaAresta(Grafo_t grafo, int origem, int dest)
     grafo->vet[origem] = novono(dest, grafo->vet[origem]);
     grafo->vet[dest] = novono(origem, grafo->vet[dest]);
 
-    grafo->qntA++;
+    grafo->qntA += 2;
 }
 
-/*
-void GRAPHbfs(Grafo_t G, int s)
-{
-    int cnt = 0;
-    for (int v = 0; v < G->qntV; ++v)
-        pre[v] = -1;
-
-    Fila *fila;
-
-    fila = cria_fila();
-
-    pre[s] = cnt++;
-    enfileira(fila, s);
-
-    while (!queueEmpty(fila))
-    {
-        int saida = desenfileira(fila);
-        for (link a = G->vet[saida]; a != NULL; a = a->prox)
-        {
-            int t = a->dest;
-            if (pre[t] == -1)
-            {
-                enfileira(fila, t);
-                pre[t] = cnt++;
-            }
-        }
-        printf("%d \n", pre[1]);
-    }
-}
-*/
 void graphDist(Grafo_t g, int origem)
 {
-    int count = 0;
 
     for (int i = 0; i < g->qntV; i++)
     {
@@ -174,70 +195,42 @@ void graphDist(Grafo_t g, int origem)
     }
 }
 
-double dist(coord P1, coord P2)
-{
-    double X, Y;
-
-    X = P2.x - P1.x;
-    Y = P2.y - P1.y;
-    X = pow(X, 2);
-    Y = pow(Y, 2);
-
-    return sqrt(X + Y);
-}
-
 int main()
 {
-    int d, n;
+    Nome origem, destino;
+    iniciaHt();
 
-    scanf(" %d", &d);
-    scanf(" %d", &n);
+    scanf(" %s %s", origem.name, destino.name);
 
-    coord *pontos = malloc(sizeof(coord) * n);
+    int qntP, qntA;
 
-    Grafo_t grafo;
+    scanf("%d %d ", &qntP, &qntA);
 
-    grafo = grafoinit(n);
+    Nome entrada1, entrada2, aux;
 
-    for (int i = 0; i < n; i++)
-        scanf("%d %d ", &pontos[i].x, &pontos[i].y);
+    Grafo_t grafo = grafoinit(qntP);
 
-    if (d >= dist(pontos[0], pontos[1]))
+    for (int i = 0; i < qntP; i++)
     {
-        printf("1\n");
+        scanf(" %s", aux.name);
+        aux.numVertice = i;
+        insereHt(aux);
     }
-    else
+
+    for (int i = 0; i < qntA; i++)
     {
+        scanf(" %s %s", entrada1.name, entrada2.name);
+        int v1 = buscaHt(entrada1);
+        int v2 = buscaHt(entrada2);
+        if (v1 * v2 == 1)
+            break;
 
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = i + 1; j < n; j++)
-            {
-                if (d >= dist(pontos[i], pontos[j]))
-                {
-
-                    novaAresta(grafo, i, j);
-                }
-            }
-        }
-        // printf("\topa bom? %d\t", pre[1]);
-        graphDist(grafo, 0);
-        // printf("uiui\n");
-
-        /* for (int i = 0; i < grafo->qntV; i++)
-        {
-            printf("pre[%d]: %d \n", i, pre[i]);
-        } */
-
-        if (pre[1] == grafo->qntV + 30)
-        {
-            printf("\n-1\n");
-        }
-        else
-        {
-            printf("\n%d\n", pre[1]);
-        }
+        novaAresta(grafo, v1, v2);
     }
+
+    graphDist(grafo, buscaHt(origem));
+
+    printf("%d\n", pre[buscaHt(destino)]);
 
     return 0;
 }
